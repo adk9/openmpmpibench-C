@@ -43,19 +43,19 @@
 /* --------------------------------------------------------- */
 int openFile(char *fileName){
 
-	printf("Attempting to open %s ....",fileName);
+    printf("Attempting to open %s ....",fileName);
 
-	inputFile = fopen(fileName, "r");
+    inputFile = fopen(fileName, "r");
 
-	/* Check that file opened successfully */
-	if (inputFile == NULL){
-		printf("ERROR.\n");
-	}
-	else{
-		printf("Success.\n");
-	}
+    /* Check that file opened successfully */
+    if (inputFile == NULL){
+        printf("ERROR.\n");
+    }
+    else{
+        printf("Success.\n");
+    }
 
-return 0;
+    return 0;
 }
 
 
@@ -66,55 +66,56 @@ return 0;
 /*-----------------------------------------------------------*/
 int closeFile(){
 
-	/* close the input file */
-	fclose(inputFile);
+    /* close the input file */
+    fclose(inputFile);
 
-return 0;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
-/* setupBenchmarkList                          				 */
+/* setupBenchmarkList                   		     */
 /*                                                           */
 /* Subroutine to setup the benchmarkList array with the      */
 /* list of all possible benchmarks.                          */
 /*-----------------------------------------------------------*/
- int setupBenchmarkList(){
+int setupBenchmarkList(){
+    int n = 0;
+    /* Pingpong benchmarks */
+    strcpy (benchmarkList[n++], "masteronlypingpong");
+    strcpy (benchmarkList[n++], "funnelledpingpong");
+    strcpy (benchmarkList[n++], "serializedpingpong");
+    strcpy (benchmarkList[n++], "multiplepingpong");
+    /* Pingping benchmarks */
+    strcpy (benchmarkList[n++], "masteronlypingping");
+    strcpy (benchmarkList[n++], "funnelledpingping");
+    strcpy (benchmarkList[n++], "multiplepingping");
+    /* Haloexchange benchmarks */
+    strcpy (benchmarkList[n++], "masteronlyhaloexchange");
+    strcpy (benchmarkList[n++], "funnelledhaloexchange");
+    strcpy (benchmarkList[n++], "multiplehaloexchange");
+    /* Multi-pingpong benchmarks */
+    strcpy (benchmarkList[n++], "masteronlymultipingpong");
+    strcpy (benchmarkList[n++], "funnelledmultipingpong");
+    strcpy (benchmarkList[n++], "multiplemultipingpong");
+    /* Multi-pingpong benchmarks */
+    strcpy (benchmarkList[n++], "masteronlymultipingping");
+    strcpy (benchmarkList[n++], "funnelledmultipingping");
+    strcpy (benchmarkList[n++], "multiplemultipingping");
+    /* Collective benchmarks */
+    strcpy (benchmarkList[n++], "barrier");
+    strcpy (benchmarkList[n++], "reduce");
+    strcpy (benchmarkList[n++], "allreduce");
+    strcpy (benchmarkList[n++], "broadcast");
+    strcpy (benchmarkList[n++], "scatter");
+    strcpy (benchmarkList[n++], "gather");
+    strcpy (benchmarkList[n++], "alltoall");
+    /* Overlap benchmarks */
+    strcpy (benchmarkList[n++], "masteronlyoverlap");
+    strcpy (benchmarkList[n++], "funnelledoverlap");
+    strcpy (benchmarkList[n++], "multipleoverlap");
 
-	 /* Pingpong benchmarks */
-	 strcpy (benchmarkList[0], "masteronlypingpong");
-	 strcpy (benchmarkList[1], "funnelledpingpong");
-	 strcpy (benchmarkList[2], "multiplepingpong");
-	 /* Pingping benchmarks */
-	 strcpy (benchmarkList[3], "masteronlypingping");
-	 strcpy (benchmarkList[4], "funnelledpingping");
-	 strcpy (benchmarkList[5], "multiplepingping");
-	 /* Haloexchange benchmarks */
-	 strcpy (benchmarkList[6], "masteronlyhaloexchange");
-	 strcpy (benchmarkList[7], "funnelledhaloexchange");
-	 strcpy (benchmarkList[8], "multiplehaloexchange");
-	 /* Multi-pingpong benchmarks */
-	 strcpy (benchmarkList[9], "masteronlymultipingpong");
-	 strcpy (benchmarkList[10], "funnelledmultipingpong");
-	 strcpy (benchmarkList[11], "multiplemultipingpong");
-	 /* Multi-pingpong benchmarks */
-	 strcpy (benchmarkList[12], "masteronlymultipingping");
-	 strcpy (benchmarkList[13], "funnelledmultipingping");
-	 strcpy (benchmarkList[14], "multiplemultipingping");
-	 /* Collective benchmarks */
-	 strcpy (benchmarkList[15], "barrier");
-	 strcpy (benchmarkList[16], "reduce");
-	 strcpy (benchmarkList[17], "allreduce");
-	 strcpy (benchmarkList[18], "broadcast");
-	 strcpy (benchmarkList[19], "scatter");
-	 strcpy (benchmarkList[20], "gather");
-	 strcpy (benchmarkList[21], "alltoall");
-	 strcpy (benchmarkList[22], "masteronlyoverlap");
-	 strcpy (benchmarkList[23], "funnelledoverlap");
-	 strcpy (benchmarkList[24], "multipleoverlap");
-
-
-return 0;
- }
+    return 0;
+}
 
 /*-----------------------------------------------------------*/
 /* readBenchmarkParams                                       */
@@ -125,7 +126,7 @@ return 0;
 /*-----------------------------------------------------------*/
 int readBenchmarkParams(){
 
-	/* Rank 0 reads parameters from input file */
+    /* Rank 0 reads parameters from input file */
     if (myMPIRank == 0){
     	printf ("Reading parameters from input file....\n");
         /* read minimum data size from input file */
@@ -150,12 +151,12 @@ int readBenchmarkParams(){
         printf("No. Warmup iterations %d\n", warmUpIters);
 
     }
-	/*Initialise benchmarkNumber to 0 so that the  WHILE loop in
-	the driver is entered the first time */
+    /*Initialise benchmarkNumber to 0 so that the  WHILE loop in
+      the driver is entered the first time */
     benchmarkNumber = 0;
 
     /* Broadcast benchmark parameters from master to all
-    other MPI processes. */
+       other MPI processes. */
     MPI_Bcast(&minDataSize, 1, MPI_INT, 0, comm);
     MPI_Bcast(&maxDataSize, 1, MPI_INT, 0, comm);
     MPI_Bcast(&targetTime, 1, MPI_DOUBLE, 0, comm);
@@ -177,63 +178,63 @@ int readBenchmarkParams(){
 /* returns the benchmarkNumber.  							 */
 /*-----------------------------------------------------------*/
 int findBenchmarkNumber(){
-	char benchmarkName[MAXSTRING];
-	int rankInA, rankInB;
-	int i;
+    char benchmarkName[MAXSTRING];
+    int rankInA, rankInB;
+    int i;
 
-	/* Master MPI process reads next line from file */
-	if (myMPIRank == 0){
-		/* set benchmarkNumber to ERROR before read to allow error
-		check */
-		benchmarkNumber = ERROR;
+    /* Master MPI process reads next line from file */
+    if (myMPIRank == 0){
+        /* set benchmarkNumber to ERROR before read to allow error
+           check */
+        benchmarkNumber = ERROR;
 
-		/* read next benchmark from file */
-		if (fscanf(inputFile, "%s", benchmarkName) == EOF){
-			benchmarkNumber = FINISHED;
-		}
-		else {
-			/* convert benchmarkName to lowercase characters */
-			convertToLowercase(benchmarkName);
-			/* ..and check if benchmark name matches. */
-			for (i = 0; i< NUM_BENCHMARKS; i++){
-				if (strcmp(benchmarkName,benchmarkList[i]) == 0){
-					benchmarkNumber = i;
-				}
-			}
-		}
+        /* read next benchmark from file */
+        if (fscanf(inputFile, "%s", benchmarkName) == EOF){
+            benchmarkNumber = FINISHED;
+        }
+        else {
+            /* convert benchmarkName to lowercase characters */
+            convertToLowercase(benchmarkName);
+            /* ..and check if benchmark name matches. */
+            for (i = 0; i< NUM_BENCHMARKS; i++){
+                if (strcmp(benchmarkName,benchmarkList[i]) == 0){
+                    benchmarkNumber = i;
+                }
+            }
+        }
 
-		/* Check if benchmark Name does not match */
-		if (benchmarkNumber == ERROR){
-		   printf("ERROR: %s does not match any possible benchmarks\n",benchmarkName);
-		}
+        /* Check if benchmark Name does not match */
+        if (benchmarkNumber == ERROR){
+            printf("ERROR: %s does not match any possible benchmarks\n",benchmarkName);
+        }
 
-		/* Check if pingpong or pingping benchmark */
-		if (benchmarkNumber <= LASTPPID){
-			/* Read ranks from input file */
-			if (fscanf(inputFile, "%d %d",&rankInA, &rankInB) != 2){
-				printf("ERROR: expecting ranks after %s\n",benchmarkName);
-			}
-			else {
-				PPRanks[0] = findRank(rankInA);
-				PPRanks[1] = findRank(rankInB);
-			}
-			/* Check if PPRanks are the same */
-			if (PPRanks[0] == PPRanks[1]){
-				printf("Warning: Ranks are the same; benchmark will not work.\n");
-			}
+        /* Check if pingpong or pingping benchmark */
+        if (benchmarkNumber <= LASTPPID){
+            /* Read ranks from input file */
+            if (fscanf(inputFile, "%d %d",&rankInA, &rankInB) != 2){
+                printf("ERROR: expecting ranks after %s\n",benchmarkName);
+            }
+            else {
+                PPRanks[0] = findRank(rankInA);
+                PPRanks[1] = findRank(rankInB);
+            }
+            /* Check if PPRanks are the same */
+            if (PPRanks[0] == PPRanks[1]){
+                printf("Warning: Ranks are the same; benchmark will not work.\n");
+            }
 
-		}
-	}
+        }
+    }
 
-	/* Broadcast benchmarkNumber to other MPI processes */
-	MPI_Bcast(&benchmarkNumber, 1, MPI_INT, 0, comm);
+    /* Broadcast benchmarkNumber to other MPI processes */
+    MPI_Bcast(&benchmarkNumber, 1, MPI_INT, 0, comm);
 
-	/* If pingpong or pingping benchmark then broadcast ranks of participating processes */
-	if (benchmarkNumber <= LASTPPID) {
-		MPI_Bcast(PPRanks, 2, MPI_INT, 0, comm);
-	}
+    /* If pingpong or pingping benchmark then broadcast ranks of participating processes */
+    if (benchmarkNumber <= LASTPPID) {
+        MPI_Bcast(PPRanks, 2, MPI_INT, 0, comm);
+    }
 
-	return benchmarkNumber;
+    return benchmarkNumber;
 }
 
 /*-----------------------------------------------------------*/
@@ -243,16 +244,16 @@ int findBenchmarkNumber(){
 /* uppercase characters to lowercase using its ASCII value.  */
 /*-----------------------------------------------------------*/
 int convertToLowercase(char *convertString){
-	int i;
-	int len;
+    int i;
+    int len;
 
-	len = strlen(convertString);
+    len = strlen(convertString);
 
-	for (i=0; i<len; i++){
-		convertString[i] = tolower(convertString[i]);
-	}
+    for (i=0; i<len; i++){
+        convertString[i] = tolower(convertString[i]);
+    }
 
-	return 0;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -264,24 +265,24 @@ int convertToLowercase(char *convertString){
 /* taken and the target time.                                */
 /*-----------------------------------------------------------*/
 int repTimeCheck(double time, int numReps){
-	int repCheck;
+    int repCheck;
 
-	if (time < targetTime){
-		/* double totalReps and repeat benchmark */
-		repsToDo = 2 * numReps;
-		repCheck = FALSE;
-	}
-	else if (time > (2 * targetTime)){
-		/* finish benchmark and half number of reps for next dataSize */
-		repsToDo = max(numReps/2,1);
-		repCheck = TRUE;
-	}
-	else { /* time is >= targetTime */
-		/* finish benchmark and keep reps for next data size */
-		repCheck = TRUE;
-	}
+    if (time < targetTime){
+        /* double totalReps and repeat benchmark */
+        repsToDo = 2 * numReps;
+        repCheck = FALSE;
+    }
+    else if (time > (2 * targetTime)){
+        /* finish benchmark and half number of reps for next dataSize */
+        repsToDo = max(numReps/2,1);
+        repCheck = TRUE;
+    }
+    else { /* time is >= targetTime */
+        /* finish benchmark and keep reps for next data size */
+        repCheck = TRUE;
+    }
 
-	return repCheck;
+    return repCheck;
 }
 
 /*-----------------------------------------------------------*/
@@ -292,7 +293,7 @@ int repTimeCheck(double time, int numReps){
 /*-----------------------------------------------------------*/
 int max(int a, int b){
 
-	return (a > b) ? a : b;
+    return (a > b) ? a : b;
 }
 
 

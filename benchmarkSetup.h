@@ -44,7 +44,7 @@
 #define FALSE 0
 #define TRUE 1
 
-#define NUM_BENCHMARKS 25
+#define NUM_BENCHMARKS 27
 #define MAXSTRING 30
 
 #define FINISHED 999 
@@ -62,6 +62,7 @@
 #define ALLREDUCE 5
 #define SCATTER 6
 #define GATHER 7
+#define SERIALIZED 8
 
 /* function prototypes */
 int openFile(char *fileName);
