@@ -234,7 +234,7 @@ int funnelledPingpong(int totalReps, int dataSize){
     int repIter, i;
 
     /* Open parallel region for threads */
-#pragma omp parallel default(none)                                      \
+#pragma omp parallel                                                    \
     private(i,repIter)                                                  \
     shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                   \
     shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)           \
@@ -323,7 +323,7 @@ int serializedPingpong(int totalReps, int dataSize){
     int repIter, i, lBound, uBound;
 
     /* Open parallel region for threads under pingRank */
-#pragma omp parallel default(none)                                      \
+#pragma omp parallel                                                    \
     private(i,repIter,lBound)                                           \
     shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                   \
     shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)           \
@@ -416,7 +416,7 @@ int multiplePingpong(int totalReps, int dataSize){
     int repIter, i, lBound, uBound;
 
     /* Open parallel region for threads under pingRank */
-#pragma omp parallel default(none)                                      \
+#pragma omp parallel                                                    \
     private(i,repIter,lBound)                                           \
     shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                   \
     shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)           \

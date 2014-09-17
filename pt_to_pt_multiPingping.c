@@ -261,7 +261,7 @@ int funnelledMultiPingping(int totalReps, int dataSize){
   }
 
   /* Open the parallel region */
-#pragma omp parallel default(none)				\
+#pragma omp parallel				                \
   private(i,repIter)						\
   shared(dataSize,sizeofBuffer,pingSendBuf,globalIDarray)	\
   shared(pingRecvBuf,finalRecvBuf,status,requestID,destRank)	\
@@ -333,7 +333,7 @@ int multipleMultiPingping(int totalReps, int dataSize){
   }
 
   /* Open parallel region */
-#pragma omp parallel default(none)				\
+#pragma omp parallel 				                \
   private(i,repIter,lBound,requestID,status)			\
   shared(dataSize,sizeofBuffer,pingSendBuf,globalIDarray)	\
   shared(pingRecvBuf,finalRecvBuf,destRank,crossComm)		\
