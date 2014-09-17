@@ -375,8 +375,19 @@ int main(int argc, char *argv[]){
                 /* Execute benchmark */
                 overlap(FUNNELLED);
                 break;
-                /* Multiple Overlap */
+                /* Serialized Overlap */
             case 25:
+                /* Set name */
+                if (myMPIRank == 0){
+                    supportFlag = benchmarkSupport(MPI_THREAD_SERIALIZED);
+                    strcpy(name,"Serialized Overlap");
+                    setBenchName(name, benchmarkNumber, supportFlag);
+                }
+                /* Execute benchmark */
+                overlap(SERIALIZED);
+                break;
+                /* Multiple Overlap */
+            case 26:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);

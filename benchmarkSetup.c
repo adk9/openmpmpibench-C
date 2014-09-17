@@ -112,6 +112,7 @@ int setupBenchmarkList(){
     /* Overlap benchmarks */
     strcpy (benchmarkList[n++], "masteronlyoverlap");
     strcpy (benchmarkList[n++], "funnelledoverlap");
+    strcpy (benchmarkList[n++], "serializedoverlap");
     strcpy (benchmarkList[n++], "multipleoverlap");
 
     return 0;

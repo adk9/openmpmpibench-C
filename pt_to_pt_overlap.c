@@ -84,6 +84,10 @@ int overlap(int benchmarkType){
       /* perform funnelled warm-up sweep */
       funnelledOverlap(warmUpIters, dataSizeIter);
     }
+    else if (benchmarkType == SERIALIZED){
+      /* perform serialized warm-up sweep */
+      serializedOverlap(warmUpIters, dataSizeIter);
+    }
     else if (benchmarkType == MULTIPLE){
       multipleOverlap(warmUpIters, dataSizeIter);
     }
@@ -106,6 +110,9 @@ int overlap(int benchmarkType){
       }
       else if (benchmarkType == FUNNELLED){
         funnelledOverlap(repsToDo, dataSizeIter);
+      }
+      else if (benchmarkType == SERIALIZED){
+        serializedOverlap(repsToDo, dataSizeIter);
       }
       else if (benchmarkType == MULTIPLE){
         multipleOverlap(repsToDo, dataSizeIter);
@@ -367,6 +374,114 @@ int funnelledOverlap(int totalReps, int dataSize){
 
   return 0;
 }
+
+
+/*-----------------------------------------------------------*/
+/* serializedOverlap                                         */
+/*                                                           */
+/* With this algorithm multiple threads take place in the    */
+/* communication and computation.                            */
+/* Each thread under the MPI ping process sends a portion    */
+/* of the message to the other MPI process.                  */
+/* Each thread of the other process then sends it back to    */
+/* the first process. Only 1 thread calls into MPI at a time.*/
+/*-----------------------------------------------------------*/
+int serializedOverlap(int totalReps, int dataSize){
+  int repIter, i, lBound, uBound;
+
+  /* Open parallel region for threads under pingRank */
+#pragma omp parallel default(none)                                      \
+  private(i,repIter,lBound)                                             \
+  shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                     \
+  shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)             \
+  shared(dataSize,globalIDarray,comm,status,totalReps,myMPIRank,requestID)
+  {
+    for (repIter=0; repIter < totalReps; repIter++){
+
+      if (myMPIRank == pingRank){
+        /* Calculate lower bound of data array for the thread */
+        lBound = (myThreadID * dataSize);
+
+        /* All threads under MPI process with rank = pingRank
+         * write to their part of the pingBuf array using
+         * a parallel for directive.
+         */
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++){
+          pingSendBuf[i] = globalIDarray[myThreadID];
+        }
+        /* Implicit barrier not needed for multiple*/
+
+        /*Each thread under ping process sends dataSize items
+         * to MPI process with rank equal to pongRank.
+         * myThreadID is used as tag to ensure data goes to correct
+         * place in recv buffer.
+         */
+#pragma omp critical
+        {
+          MPI_Isend(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank,  \
+                    myThreadID, comm, &requestID);
+        }
+
+        fwq(5000,10);
+
+#pragma omp critical
+        {
+          MPI_Wait(&requestID, &status);
+
+          /* Thread then waits for a message from pong process. */
+          MPI_Recv(&pongRecvBuf[lBound], dataSize, MPI_INT, pongRank,   \
+                   myThreadID, comm, &status);
+        }
+
+        /* Each thread reads its part of the received buffer */
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++){
+          finalRecvBuf[i] = pongRecvBuf[i];
+        }
+      }
+      else if (myMPIRank == pongRank){
+        /* Calculate lower bound of the data array */
+        lBound = (myThreadID * dataSize);
+
+#pragma omp critical
+        {
+          /* Each thread under pongRank receives a message
+           * from the ping process.
+           */
+          MPI_Irecv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank,  \
+                    myThreadID, comm, &requestID);
+        }
+
+        fwq(5000,10);
+
+#pragma omp critical
+        {
+          MPI_Wait(&requestID, &status);
+        
+          /* Each thread now copies its part of the received buffer
+           * to pongSendBuf.
+           */
+        }
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++)
+        {
+          pongSendBuf[i] = pingRecvBuf[i];
+        }
+
+#pragma omp critical
+        {
+        /* Each thread now sends pongSendBuf to ping process. */
+        MPI_Send(&pongSendBuf[lBound], dataSize, MPI_INT, pingRank, \
+                 myThreadID, comm);
+        }
+      }
+
+    }/* end of repetitions */
+  } /* end of parallel region */
+  return 0;
+}
+
 
 /*-----------------------------------------------------------*/
 /* multipleOverlap                                           */
