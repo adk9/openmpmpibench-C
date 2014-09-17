@@ -108,6 +108,10 @@ return 0;
 	 strcpy (benchmarkList[19], "scatter");
 	 strcpy (benchmarkList[20], "gather");
 	 strcpy (benchmarkList[21], "alltoall");
+	 strcpy (benchmarkList[22], "masteronlyoverlap");
+	 strcpy (benchmarkList[23], "funnelledoverlap");
+	 strcpy (benchmarkList[24], "multipleoverlap");
+
 
 return 0;
  }

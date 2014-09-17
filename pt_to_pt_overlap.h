@@ -30,66 +30,30 @@
  *                                                                           *
  ****************************************************************************/
 
-/*-----------------------------------------------------------*/
-/* Header file for benchmarkSetup.c.                         */
-/*-----------------------------------------------------------*/
+#ifndef PT_TO_PT_OVERLAP_H_
+#define PT_TO_PT_OVERLAP_H_
 
-#ifndef BENCHMARKSETUP_H_
-#define BENCHMARKSETUP_H_
 #include "parallelEnvironment.h"
+#include "benchmarkSetup.h"
+#include "output.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define FALSE 0
-#define TRUE 1
-
-#define NUM_BENCHMARKS 25
-#define MAXSTRING 30
-
-#define FINISHED 999 
-#define ERROR 100
-
-#define LASTPPID 5 /* id of last pingpong/pingping bench */
-#define LAST_PT_PT_ID 8 /* id of last point-to-point bench */
-#define LASTMULTIPPID 14 /* id of last multi pt-to-pt bench */
-
-/*Benchmark types */
-#define MASTERONLY 1
-#define FUNNELLED  2
-#define MULTIPLE 3
-#define REDUCE 4
-#define ALLREDUCE 5
-#define SCATTER 6
-#define GATHER 7
 
 /* function prototypes */
-int openFile(char *fileName);
-int closeFile();
-int setupBenchmarkList();
-int readBenchmarkParams();
-int findBenchmarkNumber();
-int convertToLowercase(char *convertString);
-int repTimeCheck(double time, int numReps);
-int max(int a, int b);
+int overlap(int benchmarkType);
+int allocateOverlapData(int sizeofBuffer);
+int freeOverlapData();
+int masteronlyOverlap(int totalReps, int dataSize);
+int funnelledOverlap(int totalReps, int dataSize);
+int multipleOverlap(int totalReps, int dataSize);
+int testOverlap(int sizeofBuffer, int dataSize);
 
 /* variable declaration */
-FILE *inputFile;
-char benchmarkList[NUM_BENCHMARKS][MAXSTRING];
-
-int warmUpIters; /* number of iterations of warmup loop */
-int defaultReps; /* the default number of repetitions */
-int repsToDo; /* reps to do for a benchmark */
-int minDataSize;
-int maxDataSize;
-double targetTime; /* threshold time for benchmark */
-
-int benchComplete;
-int benchmarkNumber;
-
-/* variables for  timing */
-double startTime,finishTime, totalTime;
+int pingRank, pongRank;
+int sizeofBuffer;
+int *pingSendBuf, *pingRecvBuf;
+int *pongSendBuf, *pongRecvBuf;
+int *finalRecvBuf;
+int *testBuf;
 
 
-
-#endif /* BENCHMARKSETUP_H_ */
+#endif /* PT_TO_PT_OVERLAP_H_ */

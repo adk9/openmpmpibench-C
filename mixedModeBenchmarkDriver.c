@@ -39,6 +39,7 @@
 #include "parallelEnvironment.h"
 #include "benchmarkSetup.h"
 #include "pt_to_pt_pingpong.h"
+#include "pt_to_pt_overlap.h"
 #include "pt_to_pt_pingping.h"
 #include "pt_to_pt_multiPingpong.h"
 #include "pt_to_pt_multiPingping.h"
@@ -341,7 +342,40 @@ int main(int argc, char *argv[]){
 				/* Execute benchmark */
 				alltoall();
 				break;
-		}
+			/* Masteronly Overlap */
+			case 22:
+				/* Set name */
+				if (myMPIRank == 0){
+					supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
+				    strcpy(name,"Masteronly Overlap");
+				    setBenchName(name, benchmarkNumber, supportFlag);
+				}
+				/* Execute benchmark */
+				overlap(MASTERONLY);
+				break;
+			/* Funnelled Overlap */
+			case 23:
+				/* Set name */
+				if (myMPIRank == 0){
+					supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
+					strcpy(name,"Funnelled Overlap");
+					setBenchName(name, benchmarkNumber, supportFlag);
+				}
+				/* Execute benchmark */
+				overlap(FUNNELLED);
+				break;
+			/* Multiple Overlap */
+			case 24:
+				/* Set name */
+				if (myMPIRank == 0){
+					supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
+					strcpy(name,"Multiple Overlap");
+					setBenchName(name, benchmarkNumber, supportFlag);
+				}
+				/* Execute benchmark */
+				overlap(MULTIPLE);
+				break;
+                 }
 
 	}
 

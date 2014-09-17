@@ -19,6 +19,7 @@ SRC=	parallelEnvironment.c \
 	benchmarkSetup.c \
 	output.c \
 	pt_to_pt_pingpong.c \
+	pt_to_pt_overlap.c \
 	pt_to_pt_pingping.c \
 	pt_to_pt_multiPingpong.c \
 	pt_to_pt_multiPingping.c \
@@ -34,6 +35,7 @@ INC=	parallelEnvironment.h \
 	benchmarkSetup.h \
 	output.h \
 	pt_to_pt_pingpong.h \
+	pt_to_pt_overlap.h \
 	pt_to_pt_pingping.h \
 	pt_to_pt_multiPingpong.h \
 	pt_to_pt_multiPingping.h \
