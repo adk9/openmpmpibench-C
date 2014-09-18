@@ -268,20 +268,22 @@ int convertToLowercase(char *convertString){
 int repTimeCheck(double time, int numReps){
     int repCheck;
 
-    if (time < targetTime){
-        /* double totalReps and repeat benchmark */
-        repsToDo = 2 * numReps;
-        repCheck = FALSE;
-    }
-    else if (time > (2 * targetTime)){
-        /* finish benchmark and half number of reps for next dataSize */
-        repsToDo = max(numReps/2,1);
-        repCheck = TRUE;
-    }
-    else { /* time is >= targetTime */
-        /* finish benchmark and keep reps for next data size */
-        repCheck = TRUE;
-    }
+    repCheck = TRUE;
+
+    /* if (time < targetTime){ */
+    /*     /\* double totalReps and repeat benchmark *\/ */
+    /*     repsToDo = 2 * numReps; */
+    /*     repCheck = FALSE; */
+    /* } */
+    /* else if (time > (2 * targetTime)){ */
+    /*     /\* finish benchmark and half number of reps for next dataSize *\/ */
+    /*     repsToDo = max(numReps/2,1); */
+    /*     repCheck = TRUE; */
+    /* } */
+    /* else { /\* time is >= targetTime *\/ */
+    /*     /\* finish benchmark and keep reps for next data size *\/ */
+    /*     repCheck = TRUE; */
+    /* } */
 
     return repCheck;
 }
