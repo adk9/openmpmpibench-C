@@ -321,16 +321,18 @@ int funnelledPingpong(int totalReps, int dataSize){
 /*-----------------------------------------------------------*/
 int serializedPingpong(int totalReps, int dataSize){
     int repIter, i, lBound, uBound;
+    MPI_Request req;
+    MPI_Status stat;
+    int done;
 
     /* Open parallel region for threads under pingRank */
 #pragma omp parallel                                                    \
-    private(i,repIter,lBound)                                           \
+    private(i,repIter,lBound,req,stat,done)                             \
     shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                   \
     shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)           \
     shared(dataSize,globalIDarray,comm,status,totalReps,myMPIRank)
     {
         for (repIter=0; repIter < totalReps; repIter++){
-
             if (myMPIRank == pingRank){
                 /* Calculate lower bound of data array for the thread */
                 lBound = (myThreadID * dataSize);
@@ -352,12 +354,27 @@ int serializedPingpong(int totalReps, int dataSize){
                  */
 #pragma omp critical
                 {
-                    MPI_Send(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank, \
-                             myThreadID, comm);
+                    MPI_Isend(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank, \
+                              myThreadID, comm, &req);
+                }
 
+                done = 0;
+                while (done != 1) {
+#pragma omp critical
+                    MPI_Test(&req, &done, &stat);
+                }
+
+#pragma omp critical
+                {
                     /* Thread then waits for a message from pong process. */
-                    MPI_Recv(&pongRecvBuf[lBound], dataSize, MPI_INT, pongRank, \
-                             myThreadID, comm, &status);
+                    MPI_Irecv(&pongRecvBuf[lBound], dataSize, MPI_INT, pongRank, \
+                              myThreadID, comm, &req);
+                }
+
+                done = 0;
+                while (done != 1) {
+#pragma omp critical
+                    MPI_Test(&req, &done, &stat);
                 }
 
                 /* Each thread reads its part of the received buffer */
@@ -372,11 +389,17 @@ int serializedPingpong(int totalReps, int dataSize){
 
 #pragma omp critical
                 {
-                /* Each thread under pongRank receives a message
-                 * from the ping process.
-                 */
-                MPI_Recv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank, \
-                         myThreadID, comm, &status);
+                    /* Each thread under pongRank receives a message
+                     * from the ping process.
+                     */
+                    MPI_Irecv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank, \
+                              myThreadID, comm, &req);
+                }
+
+                done = 0;
+                while (done != 1) {
+#pragma omp critical
+                    MPI_Test(&req, &done, &stat);
                 }
 
                 /* Each thread now copies its part of the received buffer
@@ -391,8 +414,13 @@ int serializedPingpong(int totalReps, int dataSize){
 #pragma omp critical
                 {
                 /* Each thread now sends pongSendBuf to ping process. */
-                MPI_Send(&pongSendBuf[lBound], dataSize, MPI_INT, pingRank, \
-                         myThreadID, comm);
+                    MPI_Isend(&pongSendBuf[lBound], dataSize, MPI_INT, pingRank, \
+                              myThreadID, comm, &req);
+                }
+                done = 0;
+                while (done != 1) {
+#pragma omp critical
+                    MPI_Test(&req, &done, &stat);
                 }
             }
 
