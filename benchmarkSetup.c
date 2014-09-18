@@ -85,6 +85,7 @@ int setupBenchmarkList(){
     strcpy (benchmarkList[n++], "funnelledpingpong");
     strcpy (benchmarkList[n++], "serializedpingpong");
     strcpy (benchmarkList[n++], "multiplepingpong");
+    strcpy (benchmarkList[n++], "taskpingpong");
     /* Pingping benchmarks */
     strcpy (benchmarkList[n++], "masteronlypingping");
     strcpy (benchmarkList[n++], "funnelledpingping");
@@ -114,6 +115,7 @@ int setupBenchmarkList(){
     strcpy (benchmarkList[n++], "funnelledoverlap");
     strcpy (benchmarkList[n++], "serializedoverlap");
     strcpy (benchmarkList[n++], "multipleoverlap");
+    strcpy (benchmarkList[n++], "taskoverlap");
 
     return 0;
 }
@@ -134,12 +136,14 @@ int readBenchmarkParams(){
         fscanf(inputFile, "%d", &minDataSize);
         /* read maximum data size from input file */
         fscanf(inputFile, "%d", &maxDataSize);
+        /* read maximum iterations from input file */
+        fscanf(inputFile, "%u", &maxIters);
         /* read target time from input file */
         fscanf(inputFile, "%lf", &targetTime);
 
         /* set other benchmark parameters */
         warmUpIters = 2;
-        defaultReps = 1000;
+        defaultReps = maxIters;
 
         /* Report benchmark parameters */
         printf("------------------------------------------\n");
@@ -210,7 +214,7 @@ int findBenchmarkNumber(){
         }
 
         /* Check if pingpong or pingping benchmark */
-        if (benchmarkNumber <= LASTPPID){
+        if (benchmarkNumber <= LASTPPID || benchmarkNumber >= FIRSTOVERLAPID){
             /* Read ranks from input file */
             if (fscanf(inputFile, "%d %d",&rankInA, &rankInB) != 2){
                 printf("ERROR: expecting ranks after %s\n",benchmarkName);
@@ -231,7 +235,7 @@ int findBenchmarkNumber(){
     MPI_Bcast(&benchmarkNumber, 1, MPI_INT, 0, comm);
 
     /* If pingpong or pingping benchmark then broadcast ranks of participating processes */
-    if (benchmarkNumber <= LASTPPID) {
+    if (benchmarkNumber <= LASTPPID || benchmarkNumber >= FIRSTOVERLAPID) {
         MPI_Bcast(PPRanks, 2, MPI_INT, 0, comm);
     }
 
@@ -295,7 +299,6 @@ int repTimeCheck(double time, int numReps){
 /* arguments.												 */
 /*-----------------------------------------------------------*/
 int max(int a, int b){
-
     return (a > b) ? a : b;
 }
 
