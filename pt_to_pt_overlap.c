@@ -608,6 +608,114 @@ int multipleOverlap(int totalReps, int dataSize){
 
 
 /*-----------------------------------------------------------*/
+/* taskOverlap                                               */
+/*                                                           */
+/* With this algorithm multiple tasks take place in the      */
+/* communication and computation.                            */
+/* Each task under the MPI ping process sends a portion      */
+/* of the message to the other MPI process.                  */
+/* Each task of the other process then sends it back to      */
+/* the first process.                                        */
+/*-----------------------------------------------------------*/
+int taskOverlap(int totalReps, int dataSize){
+  int repIter, i, lBound, uBound;
+  MPI_Request req;
+  MPI_Status stat;
+
+  /* Open parallel region for threads under pingRank */
+#pragma omp parallel                                                    \
+  private(i,repIter,lBound,req,stat)                                    \
+  shared(pingRank,pongRank,pingSendBuf,pingRecvBuf)                     \
+  shared(pongSendBuf,pongRecvBuf,finalRecvBuf,sizeofBuffer)             \
+  shared(dataSize,globalIDarray,comm,totalReps,myMPIRank)
+  {
+    for (repIter=0; repIter < totalReps; repIter++){
+
+      if (myMPIRank == pingRank){
+        /* Calculate lower bound of data array for the thread */
+        lBound = (myThreadID * dataSize);
+
+        /* All threads under MPI process with rank = pingRank
+         * write to their part of the pingBuf array using
+         * a parallel for directive.
+         */
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++){
+#pragma omp task
+          pingSendBuf[i] = globalIDarray[myThreadID];
+        }
+#pragma omp taskwait
+        /* Implicit barrier not needed for multiple*/
+
+        /*Each thread under ping process sends dataSize items
+         * to MPI process with rank equal to pongRank.
+         * myThreadID is used as tag to ensure data goes to correct
+         * place in recv buffer.
+         */
+#pragma omp task
+        {
+        MPI_Isend(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank,    \
+                  myThreadID, comm, &req);
+
+        fwq(5000,10);
+
+        MPI_Wait(&req, &stat);
+
+        /* Thread then waits for a message from pong process. */
+        MPI_Recv(&pongRecvBuf[lBound], dataSize, MPI_INT, pongRank, \
+                 myThreadID, comm, &stat);
+        }
+
+        /* Each thread reads its part of the received buffer */
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++){
+#pragma omp task
+          finalRecvBuf[i] = pongRecvBuf[i];
+        }
+#pragma omp taskwait
+      }
+      else if (myMPIRank == pongRank){
+        /* Calculate lower bound of the data array */
+        lBound = (myThreadID * dataSize);
+
+        /* Each thread under pongRank receives a message
+         * from the ping process.
+         */
+#pragma omp task
+        {
+        MPI_Irecv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank, \
+                 myThreadID, comm, &req);
+
+        fwq(5000,10);
+
+        MPI_Wait(&req, &stat);
+        }
+        
+        /* Each thread now copies its part of the received buffer
+         * to pongSendBuf.
+         */
+#pragma omp for nowait schedule(static,dataSize)
+        for (i=0; i<sizeofBuffer; i++)
+        {
+#pragma omp task
+          pongSendBuf[i] = pingRecvBuf[i];
+        }
+#pragma omp taskwait
+
+#pragma omp task
+        /* Each thread now sends pongSendBuf to ping process. */
+        MPI_Send(&pongSendBuf[lBound], dataSize, MPI_INT, pingRank, \
+                 myThreadID, comm);
+#pragma omp taskwait
+      }
+
+    }/* end of repetitions */
+  } /* end of parallel region */
+  return 0;
+}
+
+
+/*-----------------------------------------------------------*/
 /* allocateData                                              */
 /*                                                           */
 /* Allocates space for the main data arrays.                 */

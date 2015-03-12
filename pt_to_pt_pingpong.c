@@ -524,7 +524,7 @@ int multiplePingpong(int totalReps, int dataSize){
 /*-----------------------------------------------------------*/
 /* taskPingpong                                              */
 /*                                                           */
-/* With this algorithm multiple task take part in the        */
+/* With this algorithm multiple tasks take part in the       */
 /* communication and computation.                            */
 /* Each task under the MPI ping process sends a portion      */
 /* of the message to the other MPI process.                  */

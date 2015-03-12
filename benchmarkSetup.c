@@ -132,14 +132,16 @@ int readBenchmarkParams(){
     /* Rank 0 reads parameters from input file */
     if (myMPIRank == 0){
     	printf ("Reading parameters from input file....\n");
+        int ret;
         /* read minimum data size from input file */
-        fscanf(inputFile, "%d", &minDataSize);
+        ret = fscanf(inputFile, "%d", &minDataSize);
         /* read maximum data size from input file */
-        fscanf(inputFile, "%d", &maxDataSize);
+        ret = fscanf(inputFile, "%d", &maxDataSize);
         /* read maximum iterations from input file */
-        fscanf(inputFile, "%u", &maxIters);
+        ret = fscanf(inputFile, "%u", &maxIters);
         /* read target time from input file */
-        fscanf(inputFile, "%lf", &targetTime);
+        ret = fscanf(inputFile, "%lf", &targetTime);
+        (void) ret;
 
         /* set other benchmark parameters */
         warmUpIters = 2;

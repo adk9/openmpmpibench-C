@@ -88,8 +88,7 @@ shared(numThreads,globalIDarray,myMPIRank)
 
    /* set parallel info in benchmark report type */
    setParallelInfo(numMPIprocs,threadSupport,numThreads);
-
-return 0;
+   return 0;
 }
 
 /*-----------------------------------------------------------*/
@@ -99,13 +98,11 @@ return 0;
 /*                                                         	 */
 /*-----------------------------------------------------------*/
 int finaliseParallelEnv(){
-
-	/* finalise the MPI programming environment */
+    /* finalise the MPI programming environment */
     MPI_Finalize();
     /*free the space created for globalIDarray...*/
     free(globalIDarray);
-
-return 0;
+    return 0;
 }
 
 /*-----------------------------------------------------------*/

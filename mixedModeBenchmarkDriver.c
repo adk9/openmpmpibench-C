@@ -419,7 +419,6 @@ int main(int argc, char *argv[]){
                 overlap(TASK);
                 break;
         }
-
     }
 
     /* Finalise programming environment */
