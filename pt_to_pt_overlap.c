@@ -210,7 +210,6 @@ int masteronlyOverlap(int totalReps, int dataSize){
   private(i)                                                    \
   shared(pingSendBuf,dataSize,sizeofBuffer,globalIDarray)       \
   schedule(static,dataSize)
-
       for(i=0; i<sizeofBuffer; i++){
         pingSendBuf[i] = globalIDarray[myThreadID];
       }
@@ -224,7 +223,7 @@ int masteronlyOverlap(int totalReps, int dataSize){
   private(i,numThreads)                                         \
   schedule(static)
       for (i=0; i<numThreads; i++) {
-        fwq(50000,10);
+        fwq(100000,100);
       }
 
       /* Finish the Send operation with an MPI_Wait */
@@ -253,7 +252,7 @@ int masteronlyOverlap(int totalReps, int dataSize){
   private(i,numThreads)                                         \
   schedule(static)
       for (i=0; i<numThreads; i++) {
-        fwq(50000,10);
+        fwq(100000,100);
       }
 
       /* Finish the Receive operation with an MPI_Wait */
@@ -321,7 +320,7 @@ int funnelledOverlap(int totalReps, int dataSize){
         {
           MPI_Isend(pingSendBuf, sizeofBuffer, MPI_INT, pongRank, TAG, comm, &req);
 
-          fwq(5000,10);
+          fwq(100000,100);
 
           /* Master thread then waits for a message from pong process */
           MPI_Recv(pongRecvBuf, sizeofBuffer, MPI_INT, pongRank, TAG, \
@@ -332,7 +331,7 @@ int funnelledOverlap(int totalReps, int dataSize){
         }
 
         if(myThreadID != 0)
-          fwq(5000,10);
+          fwq(100000,100);
 
       /* Barrier needed to wait for master thread to complete MPI_Recv */
 #pragma omp barrier
@@ -351,13 +350,13 @@ int funnelledOverlap(int totalReps, int dataSize){
         {
           MPI_Irecv(pingRecvBuf, sizeofBuffer, MPI_INT, pingRank, TAG, comm, &req);
 
-          fwq(5000,10);
+          fwq(100000,100);
 
           MPI_Wait(&req, &stat);
         }
 
         if(myThreadID != 0)
-          fwq(5000,10);
+          fwq(100000,100);
         
         /* Barrier needed to wait on master thread */
 #pragma omp barrier
@@ -435,7 +434,7 @@ int serializedOverlap(int totalReps, int dataSize){
                     myThreadID, comm, &req);
         }
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         done = 0;
         while (done != 1) {
@@ -475,7 +474,7 @@ int serializedOverlap(int totalReps, int dataSize){
                     myThreadID, comm, &req);
         }
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         done = 0;
         while (done != 1) {
@@ -558,7 +557,7 @@ int multipleOverlap(int totalReps, int dataSize){
         MPI_Isend(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank, \
                   myThreadID, comm, &req);
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         MPI_Wait(&req, &stat);
 
@@ -582,7 +581,7 @@ int multipleOverlap(int totalReps, int dataSize){
         MPI_Irecv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank, \
                  myThreadID, comm, &req);
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         MPI_Wait(&req, &stat);
         
@@ -657,7 +656,7 @@ int taskOverlap(int totalReps, int dataSize){
         MPI_Isend(&pingSendBuf[lBound], dataSize, MPI_INT, pongRank,    \
                   myThreadID, comm, &req);
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         MPI_Wait(&req, &stat);
 
@@ -686,7 +685,7 @@ int taskOverlap(int totalReps, int dataSize){
         MPI_Irecv(&pingRecvBuf[lBound], dataSize, MPI_INT, pingRank, \
                  myThreadID, comm, &req);
 
-        fwq(5000,10);
+        fwq(100000,100);
 
         MPI_Wait(&req, &stat);
         }
