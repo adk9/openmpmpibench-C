@@ -99,8 +99,19 @@ int main(int argc, char *argv[]){
                 /* Execute benchmark */
                 pingPong(MASTERONLY);
                 break;
-                /* Funnelled Pingpong */
+                /* Masteronly NB Pingpong */
             case 1:
+                /* Set name */
+                if (myMPIRank == 0){
+                    supportFlag = benchmarkSupport(MPI_THREAD_SINGLE);
+                    strcpy(name,"Masteronly NB Pingpong");
+                    setBenchName(name, benchmarkNumber, supportFlag);
+                }
+                /* Execute benchmark */
+                pingPong(MASTERONLYNB);
+                break;
+                /* Funnelled Pingpong */
+            case 2:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -111,7 +122,7 @@ int main(int argc, char *argv[]){
                 pingPong(FUNNELLED);
                 break;
                 /* Serialized Pingpong */
-            case 2:
+            case 3:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_SERIALIZED);
@@ -122,7 +133,7 @@ int main(int argc, char *argv[]){
                 pingPong(SERIALIZED);
                 break;
                 /* Multiple Pingpong */
-            case 3:
+            case 4:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -133,7 +144,7 @@ int main(int argc, char *argv[]){
                 pingPong(MULTIPLE);
                 break;
                 /* Task Pingpong */
-            case 4:
+            case 5:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -144,7 +155,7 @@ int main(int argc, char *argv[]){
                 pingPong(TASK);
                 break;
                 /* Masteronly Pingping */
-            case 5:
+            case 6:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -155,7 +166,7 @@ int main(int argc, char *argv[]){
                 pingPing(MASTERONLY);
                 break;
                 /* Funnelled Pingping */
-            case 6:
+            case 7:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -166,7 +177,7 @@ int main(int argc, char *argv[]){
                 pingPing(FUNNELLED);
                 break;
                 /* Multiple Pingping */
-            case 7:
+            case 8:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -178,7 +189,7 @@ int main(int argc, char *argv[]){
                 break;
 
                 /* Masteronly Haloexchange */
-            case 8:
+            case 9:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -190,7 +201,7 @@ int main(int argc, char *argv[]){
                 haloExchange(MASTERONLY);
                 break;
                 /* Funnelled Haloexchange */
-            case 9:
+            case 10:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -202,7 +213,7 @@ int main(int argc, char *argv[]){
                 haloExchange(FUNNELLED);
                 break;
                 /* Multiple Haloexchange */
-            case 10:
+            case 11:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -214,7 +225,7 @@ int main(int argc, char *argv[]){
                 haloExchange(MULTIPLE);
                 break;
                 /* Masteronly Multi-Pingpong */
-            case 11:
+            case 12:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -225,7 +236,7 @@ int main(int argc, char *argv[]){
                 multiPingPong(MASTERONLY);
                 break;
                 /* Funnelled Multi-Pingpong */
-            case 12:
+            case 13:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -236,7 +247,7 @@ int main(int argc, char *argv[]){
                 multiPingPong(FUNNELLED);
                 break;
                 /* Multiple Multi-Pingpong */
-            case 13:
+            case 14:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -247,7 +258,7 @@ int main(int argc, char *argv[]){
                 multiPingPong(MULTIPLE);
                 break;
                 /* Masteronly Multi-Pingping */
-            case 14:
+            case 15:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -258,7 +269,7 @@ int main(int argc, char *argv[]){
                 multiPingping(MASTERONLY);
                 break;
                 /* Funnelled Multi-Pingping */
-            case 15:
+            case 16:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -269,7 +280,7 @@ int main(int argc, char *argv[]){
                 multiPingping(FUNNELLED);
                 break;
                 /* Multiple Multi-Pingping */
-            case 16:
+            case 17:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -280,7 +291,7 @@ int main(int argc, char *argv[]){
                 multiPingping(MULTIPLE);
                 break;
                 /* Barrier */
-            case 17:
+            case 18:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -292,7 +303,7 @@ int main(int argc, char *argv[]){
                 barrierDriver();
                 break;
                 /* Reduce */
-            case 18:
+            case 19:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -304,7 +315,7 @@ int main(int argc, char *argv[]){
                 reduction(REDUCE);
                 break;
                 /* All-Reduce */
-            case 19:
+            case 20:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -316,7 +327,7 @@ int main(int argc, char *argv[]){
                 reduction(ALLREDUCE);
                 break;
                 /* Broadcast */
-            case 20:
+            case 21:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -328,7 +339,7 @@ int main(int argc, char *argv[]){
                 broadcast();
                 break;
                 /* Scatter */
-            case 21:
+            case 22:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -340,7 +351,7 @@ int main(int argc, char *argv[]){
                 scatterGather(SCATTER);
                 break;
                 /* Gather */
-            case 22:
+            case 23:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -352,7 +363,7 @@ int main(int argc, char *argv[]){
                 scatterGather(GATHER);
                 break;
                 /* All-to-all */
-            case 23:
+            case 24:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -364,7 +375,7 @@ int main(int argc, char *argv[]){
                 alltoall();
                 break;
                 /* Masteronly Overlap */
-            case 24:
+            case 25:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -375,7 +386,7 @@ int main(int argc, char *argv[]){
                 overlap(MASTERONLY);
                 break;
                 /* Funnelled Overlap */
-            case 25:
+            case 26:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_FUNNELED);
@@ -386,7 +397,7 @@ int main(int argc, char *argv[]){
                 overlap(FUNNELLED);
                 break;
                 /* Serialized Overlap */
-            case 26:
+            case 27:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_SERIALIZED);
@@ -397,7 +408,7 @@ int main(int argc, char *argv[]){
                 overlap(SERIALIZED);
                 break;
                 /* Multiple Overlap */
-            case 27:
+            case 28:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);
@@ -408,7 +419,7 @@ int main(int argc, char *argv[]){
                 overlap(MULTIPLE);
                 break;
                 /* Task Overlap */
-            case 28:
+            case 29:
                 /* Set name */
                 if (myMPIRank == 0){
                     supportFlag = benchmarkSupport(MPI_THREAD_MULTIPLE);

@@ -37,6 +37,7 @@
 /*                -funnelled pingpong                        */
 /*                -serialized pingpong                       */
 /*                -multiple pingpong                         */
+/*                -task pingpong                             */
 /*-----------------------------------------------------------*/
 #include "pt_to_pt_pingpong.h"
 
@@ -73,6 +74,17 @@ int pingPong(int benchmarkType){
         /* set sizeofBuffer */
         sizeofBuffer = dataSizeIter * numThreads;
 
+        /* set sizeofChunk */
+        if (sizeofBuffer > 1024) {
+            nchunks = NCHUNKS;
+            sizeofChunk = sizeofBuffer / nchunks;
+            lastChunk = sizeofBuffer - ((nchunks-1)*sizeofChunk);
+        } else {
+            nchunks = 1;
+            sizeofChunk = 0;
+            lastChunk = sizeofBuffer;
+        }
+
         /* allocate space for the main data arrays */
         allocatePingpongData(sizeofBuffer);
 
@@ -80,6 +92,10 @@ int pingPong(int benchmarkType){
         if (benchmarkType == MASTERONLY){
             /* perform masteronly warm-up sweep */
             masteronlyPingpong(warmUpIters, dataSizeIter);
+        }
+        else if (benchmarkType == MASTERONLYNB){
+            /* perform masteronly-nb warm-up sweep */
+            masteronlynbPingpong(warmUpIters, dataSizeIter);
         }
         else if (benchmarkType == FUNNELLED){
             /* perform funnelled warm-up sweep */
@@ -111,6 +127,9 @@ int pingPong(int benchmarkType){
             if (benchmarkType == MASTERONLY){
                 /* execute for repsToDo repetitions */
                 masteronlyPingpong(repsToDo, dataSizeIter);
+            }
+            else if (benchmarkType == MASTERONLYNB){
+                masteronlynbPingpong(repsToDo, dataSizeIter);
             }
             else if (benchmarkType == FUNNELLED){
                 funnelledPingpong(repsToDo, dataSizeIter);
@@ -220,6 +239,100 @@ int masteronlyPingpong(int totalReps, int dataSize){
             /* pongRank process now sends pongSendBuf to ping process. */
             MPI_Send(pongSendBuf, sizeofBuffer, MPI_INTEGER, pingRank, \
                      TAG, comm);
+        }
+    }
+
+    return 0;
+}
+
+/*-----------------------------------------------------------*/
+/* masteronlynbPingpong                                      */
+/*                                                           */
+/* One MPI process sends single fixed length message to      */
+/* another MPI process.                                      */
+/* This other process then sends it back to the first        */
+/* process.                                                  */
+/*-----------------------------------------------------------*/
+int masteronlynbPingpong(int totalReps, int dataSize){
+    int repIter, i;
+    MPI_Request reqs[nchunks*2];
+
+    for (repIter = 0; repIter < totalReps; repIter++){
+        /* All threads under MPI process with rank = pingRank
+         * write to their part of the pingBuf array using a
+         * parallel for directive.
+         */
+        if (myMPIRank == pingRank){
+#pragma omp parallel for default(none)                          \
+    private(i)                                                  \
+    shared(pingSendBuf,dataSize,sizeofBuffer,globalIDarray)     \
+    schedule(static,dataSize)
+
+            for(i=0; i<sizeofBuffer; i++){
+                pingSendBuf[i] = globalIDarray[myThreadID];
+            }
+
+            /* Ping process sends buffer to MPI process with rank equal to
+             * pongRank.
+             */
+            for(i = 0; i < nchunks-1; ++i){
+                MPI_Isend(pingSendBuf+(i*sizeofChunk), sizeofChunk, MPI_INT, pongRank, TAG,
+                          comm, &reqs[i]);
+            }
+            MPI_Isend(pingSendBuf+(i*sizeofChunk), lastChunk, MPI_INT, pongRank, TAG,
+                          comm, &reqs[i]);
+            
+            /* Process then waits for a message from pong process and
+             * each thread reads its part of received buffer.
+             */
+
+            for(i = 0; i < nchunks-1; ++i){
+                MPI_Irecv(pongRecvBuf+(i*sizeofChunk), sizeofChunk, MPI_INT, pongRank, \
+                          TAG, comm, &reqs[nchunks+i]);
+            }
+            MPI_Irecv(pongRecvBuf+(i*sizeofChunk), lastChunk, MPI_INT, pongRank, \
+                      TAG, comm, &reqs[nchunks+i]);
+            MPI_Waitall(2*nchunks, reqs, MPI_STATUSES_IGNORE);
+
+#pragma omp parallel for default(none)                          \
+    private(i)                                                  \
+    shared(pongRecvBuf,finalRecvBuf,dataSize,sizeofBuffer)      \
+    schedule(static,dataSize)
+            for(i=0; i<sizeofBuffer; i++){
+                finalRecvBuf[i] = pongRecvBuf[i];
+            }
+        }
+        else if (myMPIRank == pongRank){
+            /* pongRank receives the message from the ping process */
+            for(i = 0; i < nchunks-1; ++i){
+                MPI_Irecv(pingRecvBuf+(i*sizeofChunk), sizeofChunk, MPI_INT, pingRank,  \
+                         TAG, comm, &reqs[i]);
+            }
+            MPI_Irecv(pingRecvBuf+(i*sizeofChunk), lastChunk, MPI_INT, pingRank, \
+                      TAG, comm, &reqs[i]);
+            MPI_Waitall(nchunks, reqs, MPI_STATUSES_IGNORE);
+
+            /* each thread under the pongRank MPI process now copies
+             * its part of the received buffer to pongSendBuf.
+             */
+#pragma omp parallel for default(none)                          \
+    private(i)                                                  \
+    shared(pongSendBuf,pingRecvBuf,dataSize,sizeofBuffer)       \
+    schedule(static,dataSize)
+            for(i=0; i< sizeofBuffer; i++){
+                pongSendBuf[i] = pingRecvBuf[i];
+            }
+
+            /* pongRank process now sends pongSendBuf to ping process. */
+            for(i = 0; i < nchunks-1; ++i){
+                MPI_Isend(pongSendBuf+(i*sizeofChunk), sizeofChunk, MPI_INTEGER, pingRank, TAG,
+                          comm, &reqs[i]);
+            }
+
+            MPI_Isend(pongSendBuf+(i*sizeofChunk), lastChunk, MPI_INTEGER, pingRank, TAG,
+                      comm, &reqs[i]);
+
+            MPI_Waitall(nchunks, reqs, MPI_STATUSES_IGNORE);
         }
     }
 

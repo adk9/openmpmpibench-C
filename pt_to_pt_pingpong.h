@@ -43,13 +43,18 @@ int pingPong(int benchmarkType);
 int allocatePingpongData(int sizeofBuffer);
 int freePingpongData();
 int masteronlyPingpong(int totalReps, int dataSize);
+int masteronlynbPingpong(int totalReps, int dataSize);
 int funnelledPingpong(int totalReps, int dataSize);
 int multiplePingpong(int totalReps, int dataSize);
 int testPingpong(int sizeofBuffer, int dataSize);
 
+#define NCHUNKS 8
 /* variable declaration */
 int pingRank, pongRank;
 int sizeofBuffer;
+int nchunks;
+int sizeofChunk;
+int lastChunk;
 int *pingSendBuf, *pingRecvBuf;
 int *pongSendBuf, *pongRecvBuf;
 int *finalRecvBuf;

@@ -82,6 +82,7 @@ int setupBenchmarkList(){
     int n = 0;
     /* Pingpong benchmarks */
     strcpy (benchmarkList[n++], "masteronlypingpong");
+    strcpy (benchmarkList[n++], "masteronlynbpingpong");
     strcpy (benchmarkList[n++], "funnelledpingpong");
     strcpy (benchmarkList[n++], "serializedpingpong");
     strcpy (benchmarkList[n++], "multiplepingpong");
@@ -98,7 +99,7 @@ int setupBenchmarkList(){
     strcpy (benchmarkList[n++], "masteronlymultipingpong");
     strcpy (benchmarkList[n++], "funnelledmultipingpong");
     strcpy (benchmarkList[n++], "multiplemultipingpong");
-    /* Multi-pingpong benchmarks */
+    /* Multi-pingping benchmarks */
     strcpy (benchmarkList[n++], "masteronlymultipingping");
     strcpy (benchmarkList[n++], "funnelledmultipingping");
     strcpy (benchmarkList[n++], "multiplemultipingping");
@@ -216,7 +217,8 @@ int findBenchmarkNumber(){
         }
 
         /* Check if pingpong or pingping benchmark */
-        if (benchmarkNumber <= LASTPPID || benchmarkNumber >= FIRSTOVERLAPID){
+        if (benchmarkNumber <= LASTPPID ||
+            (benchmarkNumber >= FIRSTOVERLAPID && benchmarkNumber < NUM_BENCHMARKS)){
             /* Read ranks from input file */
             if (fscanf(inputFile, "%d %d",&rankInA, &rankInB) != 2){
                 printf("ERROR: expecting ranks after %s\n",benchmarkName);
@@ -237,7 +239,8 @@ int findBenchmarkNumber(){
     MPI_Bcast(&benchmarkNumber, 1, MPI_INT, 0, comm);
 
     /* If pingpong or pingping benchmark then broadcast ranks of participating processes */
-    if (benchmarkNumber <= LASTPPID || benchmarkNumber >= FIRSTOVERLAPID) {
+    if (benchmarkNumber <= LASTPPID ||
+        (benchmarkNumber >= FIRSTOVERLAPID && benchmarkNumber < NUM_BENCHMARKS)){
         MPI_Bcast(PPRanks, 2, MPI_INT, 0, comm);
     }
 

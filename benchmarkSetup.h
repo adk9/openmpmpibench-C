@@ -44,16 +44,16 @@
 #define FALSE 0
 #define TRUE 1
 
-#define NUM_BENCHMARKS 29
+#define NUM_BENCHMARKS 30
 #define MAXSTRING 30
 
 #define FINISHED 999 
 #define ERROR 100
 
-#define LASTPPID 8 /* id of last pingpong/pingping bench */
-#define LAST_PT_PT_ID 11 /* id of last point-to-point bench */
-#define LASTMULTIPPID 17 /* id of last multi pt-to-pt bench */
-#define FIRSTOVERLAPID 24 /* id of first overlap bench */
+#define LASTPPID 9 /* id of last pingpong/pingping bench */
+#define LAST_PT_PT_ID 12 /* id of last point-to-point bench */
+#define LASTMULTIPPID 18 /* id of last multi pt-to-pt bench */
+#define FIRSTOVERLAPID 25 /* id of first overlap bench */
 
 /*Benchmark types */
 #define MASTERONLY 1
@@ -64,7 +64,8 @@
 #define SCATTER 6
 #define GATHER 7
 #define SERIALIZED 8
-#define TASK 8
+#define TASK 9
+#define MASTERONLYNB 10
 
 /* function prototypes */
 int openFile(char *fileName);
